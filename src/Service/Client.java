@@ -1,9 +1,12 @@
+package Service;
+
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import Util.Util;
 
 public class Client {
     ServiceInterface peer;
+
     public static void main(String[] args) {
         int size = args.length;
         if (size < 2 || size > 4) {
@@ -27,7 +30,7 @@ public class Client {
         try {
             Registry registry = LocateRegistry.getRegistry("localhost");
             client.peer = (ServiceInterface) registry.lookup(peerAccessPoint);
-            
+
         } catch (Exception e) {
             System.out.println("Client exception: " + e.toString());
             e.printStackTrace();
@@ -55,7 +58,7 @@ public class Client {
     }
 
     private void state() throws Exception {
-        peer.state();
+        Util.log(peer.state());
     }
 
     private void doWork(String protocol, String filepath, int replicationDegree, int storageSize) {

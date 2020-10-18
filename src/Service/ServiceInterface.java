@@ -1,4 +1,5 @@
-import java.rmi.Remote;
+package Service;
+
 import java.rmi.RemoteException;
 
 public interface ServiceInterface {
