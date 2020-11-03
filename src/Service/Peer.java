@@ -1,5 +1,7 @@
 package Service;
 
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,13 +9,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import Channel.Channel;
 import Channel.MCChannel;
 import Channel.MDBChannel;
 import Channel.MDRChannel;
+import Message.SendMessageThread;
+import Storage.Chunk;
 import Storage.Storage;
+import Util.Util;
 
 public class Peer implements ServiceInterface {
     static String version;
@@ -50,7 +55,52 @@ public class Peer implements ServiceInterface {
 	@Override
 	public void backup(String filepath, int replicationDegree) throws RemoteException {
 		// TODO Auto-generated method stub
+
+		File file = new File("/files/" + filepath);
+		String fileId = Util.sha256(file.getName() + file.lastModified());
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(file);
+			BufferedInputStream bis = new BufferedInputStream(fis);
+			byte[] buffer = new byte[64000];
+			int chunkSize = 0;
+			int chunkNo = 0;
+			
+			while((chunkSize = bis.read(buffer)) > 0) {
+
+				String header = Peer.version + ' ' + "PUTCHUNK" + ' ' + Peer.id + ' ' + fileId + ' ' + chunkNo + ' ' + replicationDegree + ' ' + (char)0xD + (char)0xA + (char)0xD + (char)0xA;
+				
+				byte[] body = Arrays.copyOf(buffer, chunkSize);
+				
+				Chunk chunk = new Chunk(chunkNo, chunkSize, fileId, body, replicationDegree);
+
+				Peer.storage.addFile(file);
 		
+				// Concatonate message(header + body)
+				byte[] message = new byte[header.getBytes().length + body.length];
+				System.arraycopy(header.getBytes(), 0, message, 0, header.getBytes().length);
+				System.arraycopy(body, 0, message, header.getBytes().length, body.length);
+		
+				Peer.executor.execute(new SendMessageThread(message, "MDB", chunk));
+
+				chunkNo++;
+			}
+
+			// Create a chunk with size zero
+			if ((int)file.length() % 64000 == 0) {
+
+			}
+
+			bis.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override

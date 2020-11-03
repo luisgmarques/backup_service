@@ -32,12 +32,10 @@ public class Channel implements Runnable {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             try {
 				this.socket.receive(packet);
+                Peer.executor.execute(new MessageManager(packet));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-            Peer.executor.execute(new MessageManager(packet));
-            
-
         }
         // socket.leaveGroup(address);
         // socket.close();
