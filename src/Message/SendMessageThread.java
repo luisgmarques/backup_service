@@ -24,13 +24,13 @@ public class SendMessageThread implements Runnable {
 	public void run() {
         switch (channel) {
             case "MC":
-                
+                Peer.MCChannel.sendMessage(message);
                 break;
             
             case "MDB":
                 int attempt = 1; // first attempt
                 int time = 1000; // 1 second
-                int actualRD = 0;
+                int storedChunks = 0;
                 do {
                     // Send message
                     Peer.MDBChannel.sendMessage(message);
@@ -43,22 +43,18 @@ public class SendMessageThread implements Runnable {
                     }
                     
                     // update conditions
-                    actualRD = Peer.storage.getActualRepDegree(chunk.getChunkId());
+                    storedChunks = Peer.storage.getStoredChunks(chunk.getChunkId());
                     attempt++;
                     time *= 2;
-                } while(attempt < 5 || actualRD < chunk.getRepDegree());
-
+                } while(attempt < 5 || storedChunks < chunk.getRepDegree());
                 break;
 
             case "MDR":
-
+                Peer.MDRChannel.sendMessage(message);
                 break;
         
             default:
                 break;
-        }
-        // TODO Auto-generated method stub
-        
-		
+        }        		
     }   
 }

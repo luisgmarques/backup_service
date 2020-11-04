@@ -3,6 +3,8 @@ package Util;
 import java.security.MessageDigest;
 
 public class Util {
+    public static String CRLF = "" + (char)0xD + (char)0xA + (char)0xD + (char)0xA;
+    
     public static void log(String message) {
         System.out.println(message);
     }

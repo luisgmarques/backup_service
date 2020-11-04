@@ -21,7 +21,7 @@ import Storage.Storage;
 import Util.Util;
 
 public class Peer implements ServiceInterface {
-    static String version;
+    public static String version;
 	static String accessPoint;
     public static int id;
 	public static MCChannel MCChannel;
@@ -29,7 +29,6 @@ public class Peer implements ServiceInterface {
 	public static MDRChannel MDRChannel;
 	public static Storage storage;
 	public static ScheduledThreadPoolExecutor executor;
-
 
     public static void main(String[] args) {
 
@@ -54,8 +53,6 @@ public class Peer implements ServiceInterface {
 
 	@Override
 	public void backup(String filepath, int replicationDegree) throws RemoteException {
-		// TODO Auto-generated method stub
-
 		File file = new File("/files/" + filepath);
 		String fileId = Util.sha256(file.getName() + file.lastModified());
 		FileInputStream fis;
@@ -68,7 +65,7 @@ public class Peer implements ServiceInterface {
 			
 			while((chunkSize = bis.read(buffer)) > 0) {
 
-				String header = Peer.version + ' ' + "PUTCHUNK" + ' ' + Peer.id + ' ' + fileId + ' ' + chunkNo + ' ' + replicationDegree + ' ' + (char)0xD + (char)0xA + (char)0xD + (char)0xA;
+				String header = Peer.version + " PUTCHUNK " + Peer.id + ' ' + fileId + ' ' + chunkNo + ' ' + replicationDegree + Util.CRLF;
 				
 				byte[] body = Arrays.copyOf(buffer, chunkSize);
 				
