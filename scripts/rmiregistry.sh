@@ -3,7 +3,7 @@ port=""
 
 if ((argc > 1 ))
 then
-	echo "Usage: $0 [<port_no>]]"
+	echo "Usage: $0 [<port_no>]"
 	exit 1
 fi
 
